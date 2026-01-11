@@ -36,9 +36,9 @@ export class ReportsService {
                     .andWhere('t.transactionType = :type', { type: TransactionType.OUT })
                     .getRawOne();
 
-                const totalIn = parseInt(inResult.total);
+                const totalIn = parseInt(inResult.total) + product.initialBalance;
                 const totalOut = parseInt(outResult.total);
-                const currentStock = product.initialBalance + totalIn - totalOut;
+                const currentStock = product.initialBalance + parseInt(inResult.total) - totalOut;
 
                 return {
                     productId: product.id,
