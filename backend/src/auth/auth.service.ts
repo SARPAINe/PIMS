@@ -10,6 +10,7 @@ import * as bcrypt from 'bcrypt';
 import { User } from '../entities';
 import { RegisterDto, LoginDto } from './dto';
 import { JwtPayload } from './strategies/jwt.strategy';
+import { UserType } from 'src/common/enums';
 
 @Injectable()
 export class AuthService {
@@ -34,7 +35,7 @@ export class AuthService {
             name: registerDto.name,
             email: registerDto.email,
             passwordHash: hashedPassword,
-            userType: registerDto.userType,
+            userType: UserType.USER,
         });
 
         const savedUser = await this.userRepository.save(user);
