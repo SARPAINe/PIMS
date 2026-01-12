@@ -30,7 +30,7 @@ export class UsersController {
     }
 
     @Get()
-    @Roles(UserType.ADMIN)
+    // @Roles(UserType.ADMIN)
     findAll(@Query('userType') userType?: string) {
         if (userType) {
             return this.usersService.findByUserType(userType);
