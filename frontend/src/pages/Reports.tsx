@@ -15,7 +15,6 @@ export default function Reports() {
     const [users, setUsers] = useState<User[]>([]);
     const [selectedProduct, setSelectedProduct] = useState('');
     const [selectedUser, setSelectedUser] = useState('');
-    const [userSearchTerm, setUserSearchTerm] = useState('');
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -41,19 +40,6 @@ export default function Reports() {
             setUsers(data);
         } catch (error) {
             console.error('Failed to load users', error);
-        }
-    };
-
-    const handleUserSearch = (value: string) => {
-        setUserSearchTerm(value);
-        // Check if the value matches a user's name
-        const matchedUser = users.find(
-            (user) => `${user.name} (${user.email})` === value
-        );
-        if (matchedUser) {
-            setSelectedUser(matchedUser.id.toString());
-        } else if (value === '') {
-            setSelectedUser('');
         }
     };
 
@@ -186,19 +172,18 @@ export default function Reports() {
                         <label className="block text-sm font-medium text-gray-700">
                             Filter by User
                         </label>
-                        <input
-                            type="text"
-                            list="users-list"
-                            value={userSearchTerm}
-                            onChange={(e) => handleUserSearch(e.target.value)}
-                            placeholder="All Users - Type to search..."
+                        <select
+                            value={selectedUser}
+                            onChange={(e) => setSelectedUser(e.target.value)}
                             className="mt-1 block w-64 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
-                        />
-                        <datalist id="users-list">
+                        >
+                            <option value="">All Users</option>
                             {users.map((user) => (
-                                <option key={user.id} value={`${user.name} (${user.email})`} />
+                                <option key={user.id} value={user.id}>
+                                    {user.name} ({user.email})
+                                </option>
                             ))}
-                        </datalist>
+                        </select>
                     </div>
                 </div>
             )}

@@ -47,14 +47,22 @@ export class InventoryController {
     }
 
     @Get('transactions')
-    findAll(@Query('productId') productId?: string, @Query('recipientId') recipientId?: string) {
+    findAll(
+        @Query('productId') productId?: string,
+        @Query('recipientId') recipientId?: string,
+        @Query('page') page?: string,
+        @Query('limit') limit?: string,
+    ) {
+        const pageNumber = page ? +page : 1;
+        const limitNumber = limit ? +limit : 10;
+
         if (productId) {
-            return this.inventoryService.findByProduct(+productId);
+            return this.inventoryService.findByProduct(+productId, pageNumber, limitNumber);
         }
         if (recipientId) {
-            return this.inventoryService.findByRecipient(+recipientId);
+            return this.inventoryService.findByRecipient(+recipientId, pageNumber, limitNumber);
         }
-        return this.inventoryService.findAll();
+        return this.inventoryService.findAll(pageNumber, limitNumber);
     }
 
     @Get('transactions/product/:id')

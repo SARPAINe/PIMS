@@ -29,9 +29,22 @@ export const inventoryService = {
         return data;
     },
 
-    async getAll(): Promise<InventoryTransaction[]> {
-        const { data } = await api.get<InventoryTransaction[]>(
-            '/inventory/transactions'
+    async getAll(page: number = 1, limit: number = 10): Promise<{
+        data: InventoryTransaction[];
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    }> {
+        const { data } = await api.get<{
+            data: InventoryTransaction[];
+            total: number;
+            page: number;
+            limit: number;
+            totalPages: number;
+        }>(
+            '/inventory/transactions',
+            { params: { page, limit } }
         );
         return data;
     },

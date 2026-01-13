@@ -103,14 +103,26 @@ export class InventoryService {
         return this.transactionRepository.save(transaction);
     }
 
-    async findAll(): Promise<InventoryTransaction[]> {
-        return this.transactionRepository.find({
+    async findAll(page: number = 1, limit: number = 10): Promise<{ data: InventoryTransaction[]; total: number; page: number; limit: number; totalPages: number }> {
+        const skip = (page - 1) * limit;
+
+        const [data, total] = await this.transactionRepository.findAndCount({
             relations: ['product', 'createdBy', 'recipientUser'],
             order: { transactionDate: 'DESC' },
+            skip,
+            take: limit,
         });
+
+        return {
+            data,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
     }
 
-    async findByProduct(productId: number): Promise<InventoryTransaction[]> {
+    async findByProduct(productId: number, page: number = 1, limit: number = 10): Promise<{ data: InventoryTransaction[]; total: number; page: number; limit: number; totalPages: number }> {
         const product = await this.productRepository.findOne({
             where: { id: productId },
         });
@@ -119,14 +131,26 @@ export class InventoryService {
             throw new NotFoundException(`Product with ID ${productId} not found`);
         }
 
-        return this.transactionRepository.find({
+        const skip = (page - 1) * limit;
+
+        const [data, total] = await this.transactionRepository.findAndCount({
             where: { productId },
             relations: ['product', 'createdBy', 'recipientUser'],
             order: { transactionDate: 'DESC' },
+            skip,
+            take: limit,
         });
+
+        return {
+            data,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
     }
 
-    async findByRecipient(recipientUserId: number): Promise<InventoryTransaction[]> {
+    async findByRecipient(recipientUserId: number, page: number = 1, limit: number = 10): Promise<{ data: InventoryTransaction[]; total: number; page: number; limit: number; totalPages: number }> {
         const user = await this.userRepository.findOne({
             where: { id: recipientUserId },
         });
@@ -135,11 +159,23 @@ export class InventoryService {
             throw new NotFoundException(`User with ID ${recipientUserId} not found`);
         }
 
-        return this.transactionRepository.find({
+        const skip = (page - 1) * limit;
+
+        const [data, total] = await this.transactionRepository.findAndCount({
             where: { recipientUserId },
             relations: ['product', 'createdBy', 'recipientUser'],
             order: { transactionDate: 'DESC' },
+            skip,
+            take: limit,
         });
+
+        return {
+            data,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
     }
 
     private async getCurrentStock(productId: number): Promise<number> {
