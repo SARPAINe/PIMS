@@ -8,6 +8,7 @@ import CreateProduct from './pages/CreateProduct';
 import Inventory from './pages/Inventory';
 import Reports from './pages/Reports';
 import Users from './pages/Users';
+import Profile from './pages/Profile';
 import PrivateRoute from './components/PrivateRoute';
 import Layout from './components/Layout';
 
@@ -27,6 +28,7 @@ function App() {
                             <Route path="/inventory" element={<Inventory />} />
                             <Route path="/reports" element={<Reports />} />
                             <Route path="/users" element={<Users />} />
+                            <Route path="/profile" element={<Profile />} />
                         </Route>
                     </Route>
 

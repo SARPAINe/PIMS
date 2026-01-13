@@ -4,6 +4,7 @@ import { authService } from '../services/authService';
 
 interface AuthContextType {
     user: User | null;
+    setUser: (user: User | null) => void;
     login: (email: string, password: string) => Promise<void>;
     register: (name: string, email: string, password: string, userType?: 'ADMIN' | 'USER') => Promise<void>;
     logout: () => void;
@@ -42,6 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         <AuthContext.Provider
             value={{
                 user,
+                setUser,
                 login,
                 register,
                 logout,

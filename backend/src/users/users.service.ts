@@ -2,12 +2,13 @@ import {
     Injectable,
     NotFoundException,
     ConflictException,
+    BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from '../entities';
-import { CreateUserDto, UpdateUserDto } from './dto';
+import { CreateUserDto, UpdateUserDto, UpdateProfileDto, UpdatePasswordDto } from './dto';
 import { UserType } from 'src/common/enums';
 
 @Injectable()
@@ -98,5 +99,53 @@ export class UsersService {
             where: { userType: userType as any },
             select: ['id', 'name', 'email', 'userType', 'createdAt'],
         });
+    }
+
+    async updateProfile(id: number, updateProfileDto: UpdateProfileDto): Promise<User> {
+        const user = await this.userRepository.findOne({ where: { id } });
+
+        if (!user) {
+            throw new NotFoundException(`User with ID ${id} not found`);
+        }
+
+        if (updateProfileDto.email && updateProfileDto.email !== user.email) {
+            const existingUser = await this.userRepository.findOne({
+                where: { email: updateProfileDto.email },
+            });
+
+            if (existingUser) {
+                throw new ConflictException('Email already exists');
+            }
+        }
+
+        if (updateProfileDto.name) user.name = updateProfileDto.name;
+        if (updateProfileDto.email) user.email = updateProfileDto.email;
+
+        await this.userRepository.save(user);
+
+        // Return user without password hash
+        return this.findOne(id);
+    }
+
+    async updatePassword(id: number, updatePasswordDto: UpdatePasswordDto): Promise<void> {
+        const user = await this.userRepository.findOne({ where: { id } });
+
+        if (!user) {
+            throw new NotFoundException(`User with ID ${id} not found`);
+        }
+
+        // Verify current password
+        const isPasswordValid = await bcrypt.compare(
+            updatePasswordDto.currentPassword,
+            user.passwordHash,
+        );
+
+        if (!isPasswordValid) {
+            throw new BadRequestException('Current password is incorrect');
+        }
+
+        // Hash and set new password
+        user.passwordHash = await bcrypt.hash(updatePasswordDto.newPassword, 10);
+        await this.userRepository.save(user);
     }
 }

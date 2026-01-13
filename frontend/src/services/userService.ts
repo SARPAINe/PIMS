@@ -38,4 +38,25 @@ export const userService = {
     async delete(id: number): Promise<void> {
         await api.delete(`/users/${id}`);
     },
+
+    async updateProfile(
+        id: number,
+        data: {
+            name?: string;
+            email?: string;
+        }
+    ): Promise<User> {
+        const { data: user } = await api.patch<User>(`/users/${id}/profile`, data);
+        return user;
+    },
+
+    async updatePassword(
+        id: number,
+        data: {
+            currentPassword: string;
+            newPassword: string;
+        }
+    ): Promise<void> {
+        await api.patch(`/users/${id}/password`, data);
+    },
 };

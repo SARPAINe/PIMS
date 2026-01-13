@@ -11,10 +11,11 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
-import { CreateUserDto, UpdateUserDto } from './dto';
+import { CreateUserDto, UpdateUserDto, UpdateProfileDto, UpdatePasswordDto } from './dto';
 import { JwtAuthGuard, RolesGuard } from '../auth/guards';
-import { Roles } from '../auth/decorators';
+import { Roles, CurrentUser } from '../auth/decorators';
 import { UserType } from '../common/enums';
+import { User } from '../entities';
 
 @ApiTags('users')
 @ApiBearerAuth('JWT-auth')
@@ -54,5 +55,31 @@ export class UsersController {
     @Roles(UserType.ADMIN)
     remove(@Param('id') id: string) {
         return this.usersService.remove(+id);
+    }
+
+    @Patch(':id/profile')
+    updateProfile(
+        @Param('id') id: string,
+        @Body() updateProfileDto: UpdateProfileDto,
+        @CurrentUser() user: User,
+    ) {
+        // Users can only update their own profile, admins can update any profile
+        if (user.userType !== UserType.ADMIN && user.id !== +id) {
+            throw new Error('You can only update your own profile');
+        }
+        return this.usersService.updateProfile(+id, updateProfileDto);
+    }
+
+    @Patch(':id/password')
+    updatePassword(
+        @Param('id') id: string,
+        @Body() updatePasswordDto: UpdatePasswordDto,
+        @CurrentUser() user: User,
+    ) {
+        // Users can only update their own password, admins can update any password
+        if (user.userType !== UserType.ADMIN && user.id !== +id) {
+            throw new Error('You can only update your own password');
+        }
+        return this.usersService.updatePassword(+id, updatePasswordDto);
     }
 }
