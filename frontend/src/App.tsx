@@ -9,6 +9,10 @@ import Inventory from './pages/Inventory';
 import Reports from './pages/Reports';
 import Users from './pages/Users';
 import Profile from './pages/Profile';
+import Assets from './pages/Assets';
+import AssetTypes from './pages/AssetTypes';
+import CreateAsset from './pages/CreateAsset';
+import AssetDetail from './pages/AssetDetail';
 import PrivateRoute from './components/PrivateRoute';
 import Layout from './components/Layout';
 
@@ -27,6 +31,10 @@ function App() {
                             <Route path="/products/create" element={<CreateProduct />} />
                             <Route path="/inventory" element={<Inventory />} />
                             <Route path="/reports" element={<Reports />} />
+                            <Route path="/assets" element={<Assets />} />
+                            <Route path="/assets/types" element={<AssetTypes />} />
+                            <Route path="/assets/create" element={<CreateAsset />} />
+                            <Route path="/assets/:id" element={<AssetDetail />} />
                             <Route path="/users" element={<Users />} />
                             <Route path="/profile" element={<Profile />} />
                         </Route>
