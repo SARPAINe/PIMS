@@ -1,12 +1,22 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User, Product, InventoryTransaction } from './entities';
+import {
+    User,
+    Product,
+    InventoryTransaction,
+    AssetType,
+    AssetTypeField,
+    Asset,
+    AssetFieldValue,
+    AssetAssignment,
+} from './entities';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ProductsModule } from './products/products.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { ReportsModule } from './reports/reports.module';
+import { AssetsModule } from './assets/assets.module';
 
 @Module({
     imports: [
@@ -23,7 +33,16 @@ import { ReportsModule } from './reports/reports.module';
                 username: configService.get('DB_USERNAME'),
                 password: configService.get('DB_PASSWORD'),
                 database: configService.get('DB_DATABASE'),
-                entities: [User, Product, InventoryTransaction],
+                entities: [
+                    User,
+                    Product,
+                    InventoryTransaction,
+                    AssetType,
+                    AssetTypeField,
+                    Asset,
+                    AssetFieldValue,
+                    AssetAssignment,
+                ],
                 synchronize: configService.get('NODE_ENV') === 'development',
                 logging: configService.get('NODE_ENV') === 'development',
             }),
@@ -34,6 +53,7 @@ import { ReportsModule } from './reports/reports.module';
         ProductsModule,
         InventoryModule,
         ReportsModule,
+        AssetsModule,
     ],
 })
 export class AppModule { }
