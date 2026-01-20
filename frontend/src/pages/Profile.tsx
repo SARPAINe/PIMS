@@ -1,7 +1,6 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { userService } from '../services/userService';
-import { authService } from '../services/authService';
 
 export default function Profile() {
     const { user, setUser } = useAuth();
@@ -100,11 +99,10 @@ export default function Profile() {
                                 setError('');
                                 setSuccess('');
                             }}
-                            className={`${
-                                activeTab === 'info'
-                                    ? 'border-indigo-500 text-indigo-600'
-                                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                            className={`${activeTab === 'info'
+                                ? 'border-indigo-500 text-indigo-600'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
                         >
                             Profile Information
                         </button>
@@ -114,11 +112,10 @@ export default function Profile() {
                                 setError('');
                                 setSuccess('');
                             }}
-                            className={`${
-                                activeTab === 'password'
-                                    ? 'border-indigo-500 text-indigo-600'
-                                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                            className={`${activeTab === 'password'
+                                ? 'border-indigo-500 text-indigo-600'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
                         >
                             Change Password
                         </button>
