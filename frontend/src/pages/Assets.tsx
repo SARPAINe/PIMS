@@ -15,7 +15,14 @@ const statusColors: Record<AssetStatus, string> = {
 export default function Assets() {
     const [assets, setAssets] = useState<Asset[]>([]);
     const [assetTypes, setAssetTypes] = useState<AssetType[]>([]);
-    const [summary, setSummary] = useState<AssetDashboardSummary | null>(null);
+    const [summary, setSummary] = useState<AssetDashboardSummary>({
+        total: 0,
+        available: 0,
+        assigned: 0,
+        maintenance: 0,
+        retired: 0,
+        lost: 0,
+    });
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterType, setFilterType] = useState<number | ''>('');
@@ -28,17 +35,15 @@ export default function Assets() {
 
     useEffect(() => {
         loadAssets();
+        loadSummary();
     }, [filterType, filterStatus, searchQuery]);
 
     const loadData = async () => {
         try {
-            const [typesData, summaryData] = await Promise.all([
-                assetService.getAllAssetTypes(),
-                assetService.getDashboardSummary(),
-            ]);
+            const typesData = await assetService.getAllAssetTypes();
             setAssetTypes(typesData);
-            setSummary(summaryData);
             await loadAssets();
+            await loadSummary();
         } catch (error) {
             console.error('Failed to load data', error);
         } finally {
@@ -57,6 +62,20 @@ export default function Assets() {
             setAssets(data);
         } catch (error) {
             console.error('Failed to load assets', error);
+        }
+    };
+
+    const loadSummary = async () => {
+        try {
+            const filters: any = {};
+            if (filterType) filters.assetTypeId = filterType;
+            if (filterStatus) filters.status = filterStatus;
+            if (searchQuery) filters.q = searchQuery;
+
+            const summaryData = await assetService.getDashboardSummary(filters);
+            setSummary(summaryData);
+        } catch (error) {
+            console.error('Failed to load summary', error);
         }
     };
 
@@ -93,124 +112,122 @@ export default function Assets() {
             </div>
 
             {/* Dashboard Summary */}
-            {summary && (
-                <div className="mt-8 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-6">
-                    <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden shadow-lg rounded-xl border border-gray-200 hover:shadow-xl transition-shadow duration-300">
-                        <div className="p-5">
-                            <div className="flex items-center justify-between">
-                                <div className="flex-shrink-0">
-                                    <svg className="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                                    </svg>
-                                </div>
-                            </div>
-                            <div className="mt-3">
-                                <div className="text-sm font-medium text-gray-500 uppercase tracking-wide">Total Assets</div>
-                                <div className="mt-1 text-3xl font-bold text-gray-900">
-                                    {summary.total}
-                                </div>
+            <div className="mt-8 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-6">
+                <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden shadow-lg rounded-xl border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+                    <div className="p-5">
+                        <div className="flex items-center justify-between">
+                            <div className="flex-shrink-0">
+                                <svg className="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                </svg>
                             </div>
                         </div>
-                        <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-gray-200 opacity-20"></div>
-                    </div>
-
-                    <div className="relative bg-gradient-to-br from-green-50 to-green-100 overflow-hidden shadow-lg rounded-xl border border-green-200 hover:shadow-xl transition-shadow duration-300">
-                        <div className="p-5">
-                            <div className="flex items-center justify-between">
-                                <div className="flex-shrink-0">
-                                    <svg className="h-8 w-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                            </div>
-                            <div className="mt-3">
-                                <div className="text-sm font-medium text-green-700 uppercase tracking-wide">Available</div>
-                                <div className="mt-1 text-3xl font-bold text-green-900">
-                                    {summary.available}
-                                </div>
+                        <div className="mt-3">
+                            <div className="text-sm font-medium text-gray-500 uppercase tracking-wide">Total Assets</div>
+                            <div className="mt-1 text-3xl font-bold text-gray-900">
+                                {summary.total}
                             </div>
                         </div>
-                        <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-green-300 opacity-20"></div>
                     </div>
-
-                    <div className="relative bg-gradient-to-br from-blue-50 to-blue-100 overflow-hidden shadow-lg rounded-xl border border-blue-200 hover:shadow-xl transition-shadow duration-300">
-                        <div className="p-5">
-                            <div className="flex items-center justify-between">
-                                <div className="flex-shrink-0">
-                                    <svg className="h-8 w-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                    </svg>
-                                </div>
-                            </div>
-                            <div className="mt-3">
-                                <div className="text-sm font-medium text-blue-700 uppercase tracking-wide">Assigned</div>
-                                <div className="mt-1 text-3xl font-bold text-blue-900">
-                                    {summary.assigned}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-blue-300 opacity-20"></div>
-                    </div>
-
-                    <div className="relative bg-gradient-to-br from-yellow-50 to-yellow-100 overflow-hidden shadow-lg rounded-xl border border-yellow-200 hover:shadow-xl transition-shadow duration-300">
-                        <div className="p-5">
-                            <div className="flex items-center justify-between">
-                                <div className="flex-shrink-0">
-                                    <svg className="h-8 w-8 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    </svg>
-                                </div>
-                            </div>
-                            <div className="mt-3">
-                                <div className="text-sm font-medium text-yellow-700 uppercase tracking-wide">Maintenance</div>
-                                <div className="mt-1 text-3xl font-bold text-yellow-900">
-                                    {summary.maintenance}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-yellow-300 opacity-20"></div>
-                    </div>
-
-                    <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden shadow-lg rounded-xl border border-gray-300 hover:shadow-xl transition-shadow duration-300">
-                        <div className="p-5">
-                            <div className="flex items-center justify-between">
-                                <div className="flex-shrink-0">
-                                    <svg className="h-8 w-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                                    </svg>
-                                </div>
-                            </div>
-                            <div className="mt-3">
-                                <div className="text-sm font-medium text-gray-600 uppercase tracking-wide">Retired</div>
-                                <div className="mt-1 text-3xl font-bold text-gray-900">
-                                    {summary.retired}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-gray-300 opacity-20"></div>
-                    </div>
-
-                    <div className="relative bg-gradient-to-br from-red-50 to-red-100 overflow-hidden shadow-lg rounded-xl border border-red-200 hover:shadow-xl transition-shadow duration-300">
-                        <div className="p-5">
-                            <div className="flex items-center justify-between">
-                                <div className="flex-shrink-0">
-                                    <svg className="h-8 w-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                    </svg>
-                                </div>
-                            </div>
-                            <div className="mt-3">
-                                <div className="text-sm font-medium text-red-700 uppercase tracking-wide">Lost</div>
-                                <div className="mt-1 text-3xl font-bold text-red-900">
-                                    {summary.lost}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-red-300 opacity-20"></div>
-                    </div>
+                    <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-gray-200 opacity-20"></div>
                 </div>
-            )}
+
+                <div className="relative bg-gradient-to-br from-green-50 to-green-100 overflow-hidden shadow-lg rounded-xl border border-green-200 hover:shadow-xl transition-shadow duration-300">
+                    <div className="p-5">
+                        <div className="flex items-center justify-between">
+                            <div className="flex-shrink-0">
+                                <svg className="h-8 w-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div className="mt-3">
+                            <div className="text-sm font-medium text-green-700 uppercase tracking-wide">Available</div>
+                            <div className="mt-1 text-3xl font-bold text-green-900">
+                                {summary.available}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-green-300 opacity-20"></div>
+                </div>
+
+                <div className="relative bg-gradient-to-br from-blue-50 to-blue-100 overflow-hidden shadow-lg rounded-xl border border-blue-200 hover:shadow-xl transition-shadow duration-300">
+                    <div className="p-5">
+                        <div className="flex items-center justify-between">
+                            <div className="flex-shrink-0">
+                                <svg className="h-8 w-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div className="mt-3">
+                            <div className="text-sm font-medium text-blue-700 uppercase tracking-wide">Assigned</div>
+                            <div className="mt-1 text-3xl font-bold text-blue-900">
+                                {summary.assigned}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-blue-300 opacity-20"></div>
+                </div>
+
+                <div className="relative bg-gradient-to-br from-yellow-50 to-yellow-100 overflow-hidden shadow-lg rounded-xl border border-yellow-200 hover:shadow-xl transition-shadow duration-300">
+                    <div className="p-5">
+                        <div className="flex items-center justify-between">
+                            <div className="flex-shrink-0">
+                                <svg className="h-8 w-8 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div className="mt-3">
+                            <div className="text-sm font-medium text-yellow-700 uppercase tracking-wide">Maintenance</div>
+                            <div className="mt-1 text-3xl font-bold text-yellow-900">
+                                {summary.maintenance}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-yellow-300 opacity-20"></div>
+                </div>
+
+                <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden shadow-lg rounded-xl border border-gray-300 hover:shadow-xl transition-shadow duration-300">
+                    <div className="p-5">
+                        <div className="flex items-center justify-between">
+                            <div className="flex-shrink-0">
+                                <svg className="h-8 w-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div className="mt-3">
+                            <div className="text-sm font-medium text-gray-600 uppercase tracking-wide">Retired</div>
+                            <div className="mt-1 text-3xl font-bold text-gray-900">
+                                {summary.retired}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-gray-300 opacity-20"></div>
+                </div>
+
+                <div className="relative bg-gradient-to-br from-red-50 to-red-100 overflow-hidden shadow-lg rounded-xl border border-red-200 hover:shadow-xl transition-shadow duration-300">
+                    <div className="p-5">
+                        <div className="flex items-center justify-between">
+                            <div className="flex-shrink-0">
+                                <svg className="h-8 w-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div className="mt-3">
+                            <div className="text-sm font-medium text-red-700 uppercase tracking-wide">Lost</div>
+                            <div className="mt-1 text-3xl font-bold text-red-900">
+                                {summary.lost}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-red-300 opacity-20"></div>
+                </div>
+            </div>
 
             {/* Filters */}
             <div className="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 p-6">

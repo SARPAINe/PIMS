@@ -71,8 +71,19 @@ export const assetService = {
         return data;
     },
 
-    async getDashboardSummary(): Promise<AssetDashboardSummary> {
-        const { data } = await api.get<AssetDashboardSummary>('/assets/dashboard-summary');
+    async getDashboardSummary(filters?: {
+        assetTypeId?: number;
+        status?: AssetStatus;
+        q?: string;
+    }): Promise<AssetDashboardSummary> {
+        const params = new URLSearchParams();
+        if (filters?.assetTypeId) params.append('assetTypeId', filters.assetTypeId.toString());
+        if (filters?.status) params.append('status', filters.status);
+        if (filters?.q) params.append('q', filters.q);
+
+        const queryString = params.toString();
+        const url = queryString ? `/assets/dashboard-summary?${queryString}` : '/assets/dashboard-summary';
+        const { data } = await api.get<AssetDashboardSummary>(url);
         return data;
     },
 

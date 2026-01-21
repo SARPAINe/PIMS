@@ -262,23 +262,70 @@ export class AssetsService {
         };
     }
 
-    async getDashboardSummary(): Promise<any> {
-        const total = await this.assetRepository.count();
-        const available = await this.assetRepository.count({
-            where: { status: AssetStatus.AVAILABLE },
-        });
-        const assigned = await this.assetRepository.count({
-            where: { status: AssetStatus.ASSIGNED },
-        });
-        const maintenance = await this.assetRepository.count({
-            where: { status: AssetStatus.MAINTENANCE },
-        });
-        const retired = await this.assetRepository.count({
-            where: { status: AssetStatus.RETIRED },
-        });
-        const lost = await this.assetRepository.count({
-            where: { status: AssetStatus.LOST },
-        });
+    async getDashboardSummary(filters?: {
+        assetTypeId?: number;
+        status?: AssetStatus;
+        q?: string;
+    }): Promise<any> {
+        // Build base query with filters - using parameterized queries to prevent SQL injection
+        const buildQuery = () => {
+            const queryBuilder = this.assetRepository.createQueryBuilder('asset');
+
+            if (filters?.assetTypeId) {
+                queryBuilder.andWhere('asset.assetTypeId = :assetTypeId', {
+                    assetTypeId: filters.assetTypeId,
+                });
+            }
+
+            if (filters?.status) {
+                queryBuilder.andWhere('asset.status = :status', {
+                    status: filters.status,
+                });
+            }
+
+            if (filters?.q) {
+                queryBuilder.andWhere(
+                    '(asset.assetNumber LIKE :q OR asset.serialNumber LIKE :q)',
+                    { q: `%${filters.q}%` },
+                );
+            }
+
+            return queryBuilder;
+        };
+
+        // Get total count with filters
+        const total = await buildQuery().getCount();
+
+        // Get counts by status with filters applied
+        const available = await buildQuery()
+            .andWhere('asset.status = :availableStatus', {
+                availableStatus: AssetStatus.AVAILABLE,
+            })
+            .getCount();
+
+        const assigned = await buildQuery()
+            .andWhere('asset.status = :assignedStatus', {
+                assignedStatus: AssetStatus.ASSIGNED,
+            })
+            .getCount();
+
+        const maintenance = await buildQuery()
+            .andWhere('asset.status = :maintenanceStatus', {
+                maintenanceStatus: AssetStatus.MAINTENANCE,
+            })
+            .getCount();
+
+        const retired = await buildQuery()
+            .andWhere('asset.status = :retiredStatus', {
+                retiredStatus: AssetStatus.RETIRED,
+            })
+            .getCount();
+
+        const lost = await buildQuery()
+            .andWhere('asset.status = :lostStatus', {
+                lostStatus: AssetStatus.LOST,
+            })
+            .getCount();
 
         return {
             total,

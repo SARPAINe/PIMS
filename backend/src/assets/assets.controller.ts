@@ -75,8 +75,16 @@ export class AssetsController {
     }
 
     @Get('dashboard-summary')
-    getDashboardSummary() {
-        return this.assetsService.getDashboardSummary();
+    getDashboardSummary(
+        @Query('assetTypeId') assetTypeId?: string,
+        @Query('status') status?: AssetStatus,
+        @Query('q') q?: string,
+    ) {
+        return this.assetsService.getDashboardSummary({
+            assetTypeId: assetTypeId ? parseInt(assetTypeId, 10) : undefined,
+            status,
+            q,
+        });
     }
 
     @Get(':id')
