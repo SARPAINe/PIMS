@@ -133,6 +133,42 @@ export default function AssetDetail() {
         return <div className="text-center py-10">Asset not found</div>;
     }
 
+    // Calculate total assignment duration
+    const calculateTotalAssignmentDuration = () => {
+        if (!asset.assignmentHistory || asset.assignmentHistory.length === 0) {
+            return { days: 0, text: 'Never assigned' };
+        }
+
+        let totalDays = 0;
+        asset.assignmentHistory.forEach(assignment => {
+            const issueDate = new Date(assignment.issueDate);
+            const endDate = assignment.handoverDate ? new Date(assignment.handoverDate) : new Date();
+            const durationMs = endDate.getTime() - issueDate.getTime();
+            const days = Math.floor(durationMs / (1000 * 60 * 60 * 24));
+            totalDays += days;
+        });
+
+        let durationText = '';
+        if (totalDays < 1) {
+            durationText = 'Less than a day';
+        } else if (totalDays < 30) {
+            durationText = `${totalDays} day${totalDays === 1 ? '' : 's'}`;
+        } else if (totalDays < 365) {
+            const months = Math.floor(totalDays / 30);
+            const days = totalDays % 30;
+            durationText = `${months} month${months === 1 ? '' : 's'}${days > 0 ? ` ${days} day${days === 1 ? '' : 's'}` : ''}`;
+        } else {
+            const years = Math.floor(totalDays / 365);
+            const remainingDays = totalDays % 365;
+            const months = Math.floor(remainingDays / 30);
+            durationText = `${years} year${years === 1 ? '' : 's'}${months > 0 ? ` ${months} month${months === 1 ? '' : 's'}` : ''}`;
+        }
+
+        return { days: totalDays, text: durationText };
+    };
+
+    const totalAssignmentDuration = calculateTotalAssignmentDuration();
+
     return (
         <div className="px-4 sm:px-6 lg:px-8">
             {/* Header */}
@@ -189,6 +225,39 @@ export default function AssetDetail() {
                             </button>
                         </>
                     )}
+                </div>
+            </div>
+
+            {/* Utilization Summary */}
+            <div className="mt-8 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl shadow-lg border border-indigo-200 overflow-hidden">
+                <div className="px-6 py-5">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-1">Asset Utilization Summary</h3>
+                            <p className="text-sm text-gray-600">Total time this asset has been in use</p>
+                        </div>
+                        <div className="bg-white rounded-lg px-4 py-3 shadow-md">
+                            <svg className="h-10 w-10 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
+                        <div className="bg-white rounded-lg px-4 py-4 shadow-md">
+                            <dt className="text-sm font-medium text-gray-500 mb-1">Total Assignment Time</dt>
+                            <dd className="text-2xl font-bold text-indigo-600">{totalAssignmentDuration.text}</dd>
+                            <dd className="text-xs text-gray-500 mt-1">({totalAssignmentDuration.days} total days)</dd>
+                        </div>
+                        <div className="bg-white rounded-lg px-4 py-4 shadow-md">
+                            <dt className="text-sm font-medium text-gray-500 mb-1">Total Assignments</dt>
+                            <dd className="text-2xl font-bold text-purple-600">
+                                {asset.assignmentHistory?.length || 0}
+                            </dd>
+                            <dd className="text-xs text-gray-500 mt-1">
+                                {asset.currentAssignment ? 'Currently assigned' : 'Not assigned'}
+                            </dd>
+                        </div>
+                    </div>
                 </div>
             </div>
 
