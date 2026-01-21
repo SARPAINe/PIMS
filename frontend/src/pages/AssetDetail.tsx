@@ -332,29 +332,58 @@ export default function AssetDetail() {
                                         Handover Date
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                        Duration
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                                         Remarks
                                     </th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {asset.assignmentHistory.map((assignment) => (
-                                    <tr key={assignment.id}>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {assignment.assignedToUser?.name}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {new Date(assignment.issueDate).toLocaleDateString()}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {assignment.handoverDate
-                                                ? new Date(assignment.handoverDate).toLocaleDateString()
-                                                : <span className="text-blue-600 font-medium">Current</span>}
-                                        </td>
-                                        <td className="px-6 py-4 text-sm text-gray-500">
-                                            {assignment.remarks || '-'}
-                                        </td>
-                                    </tr>
-                                ))}
+                                {asset.assignmentHistory.map((assignment) => {
+                                    const issueDate = new Date(assignment.issueDate);
+                                    const endDate = assignment.handoverDate ? new Date(assignment.handoverDate) : new Date();
+                                    const durationMs = endDate.getTime() - issueDate.getTime();
+                                    const durationDays = Math.floor(durationMs / (1000 * 60 * 60 * 24));
+
+                                    let durationText = '';
+                                    if (durationDays < 1) {
+                                        durationText = 'Less than a day';
+                                    } else if (durationDays < 30) {
+                                        durationText = `${durationDays} day${durationDays === 1 ? '' : 's'}`;
+                                    } else if (durationDays < 365) {
+                                        const months = Math.floor(durationDays / 30);
+                                        const days = durationDays % 30;
+                                        durationText = `${months} month${months === 1 ? '' : 's'}${days > 0 ? ` ${days} day${days === 1 ? '' : 's'}` : ''}`;
+                                    } else {
+                                        const years = Math.floor(durationDays / 365);
+                                        const remainingDays = durationDays % 365;
+                                        const months = Math.floor(remainingDays / 30);
+                                        durationText = `${years} year${years === 1 ? '' : 's'}${months > 0 ? ` ${months} month${months === 1 ? '' : 's'}` : ''}`;
+                                    }
+
+                                    return (
+                                        <tr key={assignment.id}>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                {assignment.assignedToUser?.name}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {new Date(assignment.issueDate).toLocaleDateString()}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {assignment.handoverDate
+                                                    ? new Date(assignment.handoverDate).toLocaleDateString()
+                                                    : <span className="text-blue-600 font-medium">Current</span>}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">
+                                                {durationText}
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-gray-500">
+                                                {assignment.remarks || '-'}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>
