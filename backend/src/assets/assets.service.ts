@@ -5,7 +5,7 @@ import {
     ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource, Like } from 'typeorm';
+import { Repository, DataSource, Like, IsNull } from 'typeorm';
 import {
     Asset,
     AssetType,
@@ -236,7 +236,7 @@ export class AssetsService {
         const currentAssignment = await this.assetAssignmentRepository.findOne({
             where: {
                 assetId: id,
-                handoverDate: null as any,
+                handoverDate: IsNull(),
             },
             relations: ['assignedToUser', 'assignedByUser'],
         });
@@ -318,7 +318,7 @@ export class AssetsService {
         const activeAssignment = await this.assetAssignmentRepository.findOne({
             where: {
                 assetId: assetId,
-                handoverDate: null as any,
+                handoverDate: IsNull(),
             },
         });
 
@@ -364,7 +364,7 @@ export class AssetsService {
         const activeAssignment = await this.assetAssignmentRepository.findOne({
             where: {
                 assetId: assetId,
-                handoverDate: null as any,
+                handoverDate: IsNull(),
             },
         });
 
@@ -418,7 +418,7 @@ export class AssetsService {
         const activeAssignment = await this.assetAssignmentRepository.findOne({
             where: {
                 assetId: assetId,
-                handoverDate: null as any,
+                handoverDate: IsNull(),
             },
         });
 
@@ -463,7 +463,7 @@ export class AssetsService {
         });
     }
 
-    async getUserAssets(userId: number): Promise<Asset[]> {
+    async getUserAssets(userId: number): Promise<any[]> {
         const user = await this.userRepository.findOne({
             where: { id: userId },
         });
@@ -476,12 +476,16 @@ export class AssetsService {
         const activeAssignments = await this.assetAssignmentRepository.find({
             where: {
                 assignedToUserId: userId,
-                handoverDate: null as any,
+                handoverDate: IsNull(),
             },
-            relations: ['asset', 'asset.assetType'],
+            relations: ['asset', 'asset.assetType', 'assignedToUser', 'assignedByUser'],
         });
 
-        return activeAssignments.map((assignment) => assignment.asset);
+        // Map assignments to assets and attach currentAssignment to each asset
+        return activeAssignments.map((assignment) => ({
+            ...assignment.asset,
+            currentAssignment: assignment,
+        }));
     }
 
     // ====== Helper Methods ======
