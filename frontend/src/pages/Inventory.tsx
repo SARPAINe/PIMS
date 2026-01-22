@@ -105,12 +105,18 @@ export default function Inventory() {
 
     return (
         <div className="px-4 sm:px-6 lg:px-8">
-            <h1 className="text-2xl font-semibold text-gray-900">
-                Inventory Transactions
-            </h1>
+            {/* Header */}
+            <div className="sm:flex sm:items-center">
+                <div className="sm:flex-auto">
+                    <h1 className="text-2xl font-semibold text-gray-900">Inventory Transactions</h1>
+                    <p className="mt-2 text-sm text-gray-700">
+                        Manage stock IN and OUT transactions
+                    </p>
+                </div>
+            </div>
 
             {/* Tabs */}
-            <div className="mt-6 border-b border-gray-200">
+            <div className="mt-8 border-b border-gray-300 bg-white rounded-t-xl shadow-sm">
                 <nav className="-mb-px flex space-x-8">
                     <button
                         onClick={() => setActiveTab('in')}
@@ -143,175 +149,232 @@ export default function Inventory() {
             </div>
 
             {error && (
-                <div className="mt-4 rounded-md bg-red-50 p-4">
-                    <p className="text-sm text-red-800">{error}</p>
+                <div className="mt-4 rounded-lg bg-red-50 border border-red-200 p-4">
+                    <div className="flex">
+                        <svg className="h-5 w-5 text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p className="text-sm text-red-800 font-medium">{error}</p>
+                    </div>
                 </div>
             )}
 
             {/* IN Form */}
             {activeTab === 'in' && (
                 <div className="mt-6 max-w-2xl">
-                    <form onSubmit={handleInSubmit} className="space-y-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">
-                                Product *
-                            </label>
-                            <select
-                                required
-                                value={inProductId}
-                                onChange={(e) => setInProductId(e.target.value)}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
+                    <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
+                        <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
+                            <svg className="h-6 w-6 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                            Record Stock IN Transaction
+                        </h3>
+                        <form onSubmit={handleInSubmit} className="space-y-6">
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                    Product <span className="text-red-500">*</span>
+                                </label>
+                                <select
+                                    required
+                                    value={inProductId}
+                                    onChange={(e) => setInProductId(e.target.value)}
+                                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2.5 border transition-colors"
+                                >
+                                    <option value="">Select a product</option>
+                                    {products.map((product) => (
+                                        <option key={product.id} value={product.id}>
+                                            {product.name} (Current: {product.currentStock})
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                    Quantity <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="number"
+                                    required
+                                    min="1"
+                                    value={inQuantity}
+                                    onChange={(e) => setInQuantity(e.target.value)}
+                                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2.5 border transition-colors"
+                                    placeholder="0"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                    Unit Price <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="number"
+                                    required
+                                    step="0.01"
+                                    min="0"
+                                    value={inUnitPrice}
+                                    onChange={(e) => setInUnitPrice(e.target.value)}
+                                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2.5 border transition-colors"
+                                    placeholder="0.00"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                    Vendor Name <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={inVendorName}
+                                    onChange={(e) => setInVendorName(e.target.value)}
+                                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2.5 border transition-colors"
+                                    placeholder="Enter vendor name"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                    Remarks <span className="text-gray-400 text-xs font-normal">(optional)</span>
+                                </label>
+                                <textarea
+                                    value={inRemarks}
+                                    onChange={(e) => setInRemarks(e.target.value)}
+                                    rows={3}
+                                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2.5 border transition-colors"
+                                    placeholder="Add any remarks..."
+                                />
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full inline-flex justify-center items-center rounded-lg border border-transparent bg-gradient-to-r from-green-600 to-emerald-600 py-3 px-6 text-sm font-semibold text-white shadow-lg hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                             >
-                                <option value="">Select a product</option>
-                                {products.map((product) => (
-                                    <option key={product.id} value={product.id}>
-                                        {product.name} (Current: {product.currentStock})
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">
-                                Quantity *
-                            </label>
-                            <input
-                                type="number"
-                                required
-                                min="1"
-                                value={inQuantity}
-                                onChange={(e) => setInQuantity(e.target.value)}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">
-                                Unit Price *
-                            </label>
-                            <input
-                                type="number"
-                                required
-                                step="0.01"
-                                min="0"
-                                value={inUnitPrice}
-                                onChange={(e) => setInUnitPrice(e.target.value)}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">
-                                Vendor Name *
-                            </label>
-                            <input
-                                type="text"
-                                required
-                                value={inVendorName}
-                                onChange={(e) => setInVendorName(e.target.value)}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">
-                                Remarks
-                            </label>
-                            <textarea
-                                value={inRemarks}
-                                onChange={(e) => setInRemarks(e.target.value)}
-                                rows={3}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
-                            />
-                        </div>
-
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:bg-gray-400"
-                        >
-                            {loading ? 'Processing...' : 'Record IN Transaction'}
-                        </button>
-                    </form>
+                                {loading ? (
+                                    <>
+                                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Processing...
+                                    </>
+                                ) : (
+                                    <>
+                                        <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        Record IN Transaction
+                                    </>
+                                )}
+                            </button>
+                        </form>
+                    </div>
                 </div>
             )}
 
             {/* OUT Form */}
             {activeTab === 'out' && (
                 <div className="mt-6 max-w-2xl">
-                    <form onSubmit={handleOutSubmit} className="space-y-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">
-                                Product *
-                            </label>
-                            <select
-                                required
-                                value={outProductId}
-                                onChange={(e) => setOutProductId(e.target.value)}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
+                    <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
+                        <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
+                            <svg className="h-6 w-6 text-red-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                            </svg>
+                            Record Stock OUT Transaction
+                        </h3>
+                        <form onSubmit={handleOutSubmit} className="space-y-6">
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                    Product <span className="text-red-500">*</span>
+                                </label>
+                                <select
+                                    required
+                                    value={outProductId}
+                                    onChange={(e) => setOutProductId(e.target.value)}
+                                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2.5 border transition-colors"
+                                >
+                                    <option value="">Select a product</option>
+                                    {products.map((product) => (
+                                        <option key={product.id} value={product.id}>
+                                            {product.name} (Available: {product.currentStock})
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                    Quantity <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="number"
+                                    required
+                                    min="1"
+                                    value={outQuantity}
+                                    onChange={(e) => setOutQuantity(e.target.value)}
+                                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2.5 border transition-colors"
+                                    placeholder="0"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                    Recipient User <span className="text-red-500">*</span>
+                                </label>
+                                <select
+                                    required
+                                    value={outRecipientUserId}
+                                    onChange={(e) => setOutRecipientUserId(e.target.value)}
+                                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2.5 border transition-colors"
+                                >
+                                    <option value="">Select a user</option>
+                                    {users.map((user) => (
+                                        <option key={user.id} value={user.id}>
+                                            {user.name} ({user.email})
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                    Remarks <span className="text-gray-400 text-xs font-normal">(optional)</span>
+                                </label>
+                                <textarea
+                                    value={outRemarks}
+                                    onChange={(e) => setOutRemarks(e.target.value)}
+                                    rows={3}
+                                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2.5 border transition-colors"
+                                    placeholder="Add any remarks..."
+                                />
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full inline-flex justify-center items-center rounded-lg border border-transparent bg-gradient-to-r from-red-600 to-pink-600 py-3 px-6 text-sm font-semibold text-white shadow-lg hover:from-red-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                             >
-                                <option value="">Select a product</option>
-                                {products.map((product) => (
-                                    <option key={product.id} value={product.id}>
-                                        {product.name} (Available: {product.currentStock})
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">
-                                Quantity *
-                            </label>
-                            <input
-                                type="number"
-                                required
-                                min="1"
-                                value={outQuantity}
-                                onChange={(e) => setOutQuantity(e.target.value)}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">
-                                Recipient User *
-                            </label>
-                            <select
-                                required
-                                value={outRecipientUserId}
-                                onChange={(e) => setOutRecipientUserId(e.target.value)}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
-                            >
-                                <option value="">Select a user</option>
-                                {users.map((user) => (
-                                    <option key={user.id} value={user.id}>
-                                        {user.name} ({user.email})
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">
-                                Remarks
-                            </label>
-                            <textarea
-                                value={outRemarks}
-                                onChange={(e) => setOutRemarks(e.target.value)}
-                                rows={3}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
-                            />
-                        </div>
-
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:bg-gray-400"
-                        >
-                            {loading ? 'Processing...' : 'Record OUT Transaction'}
-                        </button>
-                    </form>
+                                {loading ? (
+                                    <>
+                                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Processing...
+                                    </>
+                                ) : (
+                                    <>
+                                        <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        Record OUT Transaction
+                                    </>
+                                )}
+                            </button>
+                        </form>
+                    </div>
                 </div>
             )}
 
@@ -335,39 +398,39 @@ export default function Inventory() {
                                 </div>
                                 <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
                                     <table className="min-w-full divide-y divide-gray-300">
-                                        <thead className="bg-gray-50">
+                                        <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                                             <tr>
-                                                <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                                                     Date
                                                 </th>
-                                                <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                                                     Type
                                                 </th>
-                                                <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                                                     Product
                                                 </th>
-                                                <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                                                     Quantity
                                                 </th>
-                                                <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                                                     Details
                                                 </th>
-                                                <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                                                     Created By
                                                 </th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-200 bg-white">
                                             {transactions.map((transaction) => (
-                                                <tr key={transaction.id}>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                                <tr key={transaction.id} className="hover:bg-gray-50 transition-colors">
+                                                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
                                                         {new Date(
                                                             transaction.transactionDate
                                                         ).toLocaleString()}
                                                     </td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-sm">
+                                                    <td className="whitespace-nowrap px-6 py-4 text-sm">
                                                         <span
-                                                            className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${transaction.transactionType === 'IN'
+                                                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${transaction.transactionType === 'IN'
                                                                 ? 'bg-green-100 text-green-800'
                                                                 : transaction.transactionType === 'OUT'
                                                                     ? 'bg-red-100 text-red-800'
@@ -377,28 +440,30 @@ export default function Inventory() {
                                                             {transaction.transactionType}
                                                         </span>
                                                     </td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
+                                                    <td className="whitespace-nowrap px-6 py-4 text-sm font-semibold text-gray-900">
                                                         {transaction.product?.name}
                                                     </td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                        {transaction.quantity}
+                                                    <td className="whitespace-nowrap px-6 py-4 text-sm">
+                                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                                                            {transaction.quantity}
+                                                        </span>
                                                     </td>
-                                                    <td className="px-3 py-4 text-sm text-gray-500">
+                                                    <td className="px-6 py-4 text-sm text-gray-600">
                                                         {transaction.transactionType === 'IN' ? (
                                                             <>
-                                                                <div>Vendor: {transaction.vendorName}</div>
-                                                                <div>Price: ${transaction.unitPrice}</div>
+                                                                <div><span className="font-medium text-gray-700">Vendor:</span> {transaction.vendorName}</div>
+                                                                <div><span className="font-medium text-gray-700">Price:</span> <span className="text-green-600 font-semibold">${transaction.unitPrice}</span></div>
                                                             </>
                                                         ) : transaction.transactionType === 'OUT' ? (
-                                                            <div>To: {transaction.recipientUser?.name}</div>
+                                                            <div><span className="font-medium text-gray-700">To:</span> {transaction.recipientUser?.name}</div>
                                                         ) : null}
                                                         {transaction.remarks && (
-                                                            <div className="text-gray-400">
+                                                            <div className="text-gray-500 italic mt-1">
                                                                 {transaction.remarks}
                                                             </div>
                                                         )}
                                                     </td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
                                                         {transaction.createdBy?.name}
                                                     </td>
                                                 </tr>
@@ -458,8 +523,8 @@ export default function Inventory() {
                                                                     key={pageNumber}
                                                                     onClick={() => handlePageChange(pageNumber)}
                                                                     className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${currentPage === pageNumber
-                                                                            ? 'z-10 bg-indigo-600 text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
-                                                                            : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0'
+                                                                        ? 'z-10 bg-indigo-600 text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
+                                                                        : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0'
                                                                         }`}
                                                                 >
                                                                     {pageNumber}
