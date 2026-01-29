@@ -86,7 +86,8 @@ export default function Products() {
                                     <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
                                         Actions
                                     </th>
-                                )}\n                            </tr>
+                                )}
+                            </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 bg-white">
                             {products.map((product) => (
