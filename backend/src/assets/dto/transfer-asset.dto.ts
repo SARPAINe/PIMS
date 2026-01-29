@@ -1,14 +1,20 @@
-import { IsInt, IsDateString, IsOptional, IsString, MaxLength } from 'class-validator';
+import {
+  IsInt,
+  IsDateString,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from "class-validator";
 
 export class TransferAssetDto {
-    @IsInt()
-    assignedToUserId: number;
+  @IsInt()
+  assignedToUserId: number;
 
-    @IsDateString()
-    issueDate: string;
+  @IsDateString()
+  issueDate: string;
 
-    @IsOptional()
-    @IsString()
-    @MaxLength(255)
-    remarks?: string;
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  remarks?: string;
 }
