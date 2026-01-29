@@ -1,18 +1,24 @@
-import { IsEmail, IsNotEmpty, MinLength, IsEnum, IsOptional } from 'class-validator';
-import { UserType } from '../../common/enums';
+import {
+  IsEmail,
+  IsNotEmpty,
+  MinLength,
+  IsEnum,
+  IsOptional,
+} from "class-validator";
+import { UserType } from "../../common/enums";
 
 export class RegisterDto {
-    @IsNotEmpty()
-    name: string;
+  @IsNotEmpty()
+  name: string;
 
-    @IsEmail()
-    email: string;
+  @IsEmail()
+  email: string;
 
-    @IsNotEmpty()
-    @MinLength(6)
-    password: string;
+  @IsNotEmpty()
+  @MinLength(6)
+  password: string;
 
-    @IsOptional()
-    @IsEnum(UserType)
-    userType?: UserType;
+  @IsOptional()
+  @IsEnum(UserType)
+  userType?: UserType;
 }

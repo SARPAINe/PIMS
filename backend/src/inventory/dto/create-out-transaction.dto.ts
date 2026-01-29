@@ -1,16 +1,16 @@
-import { IsInt, IsOptional, Min } from 'class-validator';
+import { IsInt, IsOptional, Min } from "class-validator";
 
 export class CreateOutTransactionDto {
-    @IsInt()
-    productId: number;
+  @IsInt()
+  productId: number;
 
-    @IsInt()
-    @Min(1)
-    quantity: number;
+  @IsInt()
+  @Min(1)
+  quantity: number;
 
-    @IsInt()
-    recipientUserId: number;
+  @IsInt()
+  recipientUserId: number;
 
-    @IsOptional()
-    remarks?: string;
+  @IsOptional()
+  remarks?: string;
 }

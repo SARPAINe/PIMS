@@ -1,5 +1,5 @@
 export enum TransactionType {
-    INITIAL = 'INITIAL',
-    IN = 'IN',
-    OUT = 'OUT',
+  INITIAL = "INITIAL",
+  IN = "IN",
+  OUT = "OUT",
 }
