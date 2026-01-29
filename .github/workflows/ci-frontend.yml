@@ -1,0 +1,45 @@
+name: CI / Frontend
+
+on:
+  pull_request:
+    branches: [frontend-dev]
+    paths:
+      - "frontend/**"
+      - "docker-compose.yml"
+      - ".github/workflows/**"
+
+concurrency:
+  group: ci-frontend-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frontend-test-build:
+    name: Frontend / Typecheck + Build
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
