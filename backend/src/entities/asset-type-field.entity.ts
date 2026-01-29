@@ -10,7 +10,6 @@ import {
 } from "typeorm";
 import { AssetFieldType } from "../common/enums";
 import { AssetType } from "./asset-type.entity";
-import { AssetFieldValue } from "./asset-field-value.entity";
 
 @Entity("asset_type_fields")
 @Unique(["assetTypeId", "fieldKey"])

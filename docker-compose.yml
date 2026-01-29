@@ -1,0 +1,35 @@
+services:
+  backend:
+    image: pims-backend:latest
+    container_name: pims-backend
+    restart: unless-stopped
+
+    # Linux-only: allows containers to reach the VM host via host.docker.internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+    ports:
+      - "3000:3000"
+
+    env_file:
+      - ./backend/.env
+
+    environment:
+      # Override localhost inside container
+      DB_HOST: host.docker.internal
+      NODE_ENV: production
+
+  frontend:
+    image: pims-frontend:latest
+    container_name: pims-frontend
+    restart: unless-stopped
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+    ports:
+      # Keep your familiar port
+      - "5173:80"
+
+    depends_on:
+      - backend
