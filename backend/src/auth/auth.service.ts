@@ -26,7 +26,7 @@ export class AuthService {
     });
 
     if (existingUser) {
-      throw new ConflictException("Email already exists");
+      throw new ConflictException("Email already exists!");
     }
 
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
