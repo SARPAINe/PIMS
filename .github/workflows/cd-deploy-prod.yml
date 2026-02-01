@@ -22,15 +22,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Debug docker access in Actions
+      - name: Copy backend env from VM to workspace
         run: |
-          whoami
-          id
-          groups
-          ls -l /var/run/docker.sock
-          docker --version
-          docker ps
-          docker compose version
+          cp /home/bc/PIMS/backend/.env ./backend/.env
+          ls -la ./backend/.env
+
 
       - name: Build images
         run: |
